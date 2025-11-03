@@ -1,65 +1,295 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rajasthan VDO Score Checker 2025</title>
-  <style>
-    body { font-family: Arial; background: #f6f8fa; margin: 30px; }
-    input, select, textarea { width: 100%; padding: 8px; margin: 6px 0; }
-    button { background: #2b6cb0; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 5px; }
-    #result { background: #fff; padding: 15px; margin-top: 15px; border-radius: 10px; }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>VDO Exam — Score Checker</title>
+<style>
+  body{font-family:Inter,Arial,Helvetica,sans-serif;background:#f6f8fa;margin:0;padding:24px}
+  .container{max-width:1100px;margin:0 auto}
+  header{display:flex;align-items:center;justify-content:center;padding:18px 0}
+  h1{color:#0b63b6;margin:6px 0}
+  .card{background:#fff;border-radius:12px;padding:18px;margin-bottom:18px;box-shadow:0 4px 18px rgba(0,0,0,0.06)}
+  label{display:block;margin:8px 0 6px;font-weight:600;color:#333}
+  input[type=text], select, textarea{width:100%;padding:10px;border:1px solid #d7dce6;border-radius:8px;font-size:15px}
+  textarea{min-height:120px}
+  .row{display:flex;gap:12px}
+  .col{flex:1}
+  .btn{background:#1e90ff;color:white;padding:10px 14px;border-radius:10px;border:none;cursor:pointer;font-weight:600}
+  .btn.secondary{background:#2d3748}
+  #questionsList{margin-top:12px}
+  .question{border:1px solid #e6eef8;border-radius:10px;padding:12px;margin-bottom:10px;background:#fbfdff}
+  .opts{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .opt{flex:1;min-width:130px;padding:10px;border-radius:8px;border:1px solid #e3e8f0;background:#fff;cursor:pointer}
+  .opt.selected{border-color:#1e90ff;background:#e9f2ff}
+  #result{padding:12px}
+  .small{font-size:13px;color:#666}
+  @media print {
+    body *{visibility:hidden}
+    #printArea, #printArea *{visibility:visible}
+    #printArea{position:fixed;left:0;top:0;width:100%}
+  }
+</style>
 </head>
 <body>
-  <h1>📘 Rajasthan VDO Exam 2025 Score Checker</h1>
+<div class="container">
+  <header><h1>Rajasthan VDO — Score Checker (160 Qs)</h1></header>
 
-  <label>Name:</label>
-  <input id="name" placeholder="Your Name" />
+  <!-- PAGE 1: User form -->
+  <div id="page1" class="card">
+    <h3>Candidate Details</h3>
+    <div class="row">
+      <div class="col"><label>Name</label><input id="name" type="text" placeholder="Your name"></div>
+      <div class="col"><label>Roll No.</label><input id="rollno" type="text" placeholder="Roll number"></div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <label>Gender</label>
+        <select id="gender"><option value="">-- Select --</option><option>Male</option><option>Female</option></select>
+      </div>
+      <div class="col">
+        <label>Area</label>
+        <select id="area"><option value="">-- Select --</option><option>NonTsp</option><option>TSP</option></select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <label>Category</label>
+        <select id="category"><option value="">-- Select --</option><option>GEN</option><option>MBC</option><option>OBC</option><option>SC</option><option>ST</option></select>
+      </div>
+      <div class="col">
+        <label>Special Category</label>
+        <select id="special"><option value="">-- None --</option><option>PH</option><option>Ex-Serviceman</option></select>
+      </div>
+    </div>
 
-  <label>Roll No.:</label>
-  <input id="rollno" placeholder="Your Roll Number" />
+    <p class="small">After filling details click <strong>Start Exam</strong> to go to the questions page. Answers will be saved locally in your browser as you go.</p>
 
-  <label>Gender:</label>
-  <select id="gender">
-    <option value="">-- Select --</option>
-    <option>Male</option>
-    <option>Female</option>
-  </select>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn" id="startBtn">Start Exam (show questions)</button>
+      <button class="btn secondary" id="loadSavedBtn">Load saved answers</button>
+    </div>
+  </div>
 
-  <label>Area:</label>
-  <select id="area">
-    <option value="">-- Select --</option>
-    <option>Non TSP</option>
-    <option>TSP</option>
-  </select>
+  <!-- PAGE 2: Questions -->
+  <div id="page2" class="card" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <h3>Answer Questions (1 — 160)</h3>
+      <div>
+        <button class="btn secondary" id="backBtn">Back</button>
+        <button class="btn" id="showResultBtn">Show Result</button>
+      </div>
+    </div>
 
-  <label>Category:</label>
-  <select id="category">
-    <option value="">-- Select --</option>
-    <option>GEN</option>
-    <option>OBC</option>
-    <option>MBC</option>
-    <option>SC</option>
-    <option>ST</option>
-  </select>
+    <div id="questionsList" class="small">Loading questions...</div>
+    <div style="margin-top:12px"><small class="small">Click an option to select. You may change before final submit.</small></div>
+  </div>
 
-  <label>Special Category:</label>
-  <select id="special">
-    <option value="">-- None --</option>
-    <option>PH</option>
-    <option>Ex-Serviceman</option>
-  </select>
+  <!-- RESULT area (hidden initially) -->
+  <div id="resultCard" class="card" style="display:none">
+    <h3>Result</h3>
+    <div id="result"></div>
+    <div style="margin-top:10px">
+      <button class="btn" id="printBtn">Print Result</button>
+    </div>
+  </div>
 
-  <label>Paste Your Answers (A/B/C/D):</label>
-  <textarea id="answers" placeholder="Example: ABCDBACD..." rows="5"></textarea>
+</div>
 
-  <button onclick="checkScore()">Check My Score</button>
+<script>
+/*
+  CONFIG - replace the GOOGLE_SCRIPT_URL with your Apps Script web app URL
+  and ensure you upload questions.json alongside this index.html.
+*/
+const GOOGLE_SCRIPT_URL = "YOUR_GOOGLE_SCRIPT_URL_HERE"; // <-- https://script.google.com/macros/s/AKfycbw35jOVTAjQ-fbf9M26-njAvYCCpjeGhCWWD1vUCMU3Zyf8BXv4GqnE8OkNP2gXeCmmqw/exec
+const QUESTIONS_FILE = "questions.json";               // must exist in same repo
+const TOTAL_QUESTIONS = 160;
+const MARK_PER_QUESTION = 1.25;
+const NEGATIVE = MARK_PER_QUESTION / 3;
 
-  <div id="result"></div>
+// UI references
+const page1 = document.getElementById('page1');
+const page2 = document.getElementById('page2');
+const startBtn = document.getElementById('startBtn');
+const backBtn = document.getElementById('backBtn');
+const questionsList = document.getElementById('questionsList');
+const showResultBtn = document.getElementById('showResultBtn');
+const resultCard = document.getElementById('resultCard');
+const resultDiv = document.getElementById('result');
+const printBtn = document.getElementById('printBtn');
+const loadSavedBtn = document.getElementById('loadSavedBtn');
 
-  <script src="data.js"></script>
-  <script src="script.js"></script>
+// state
+let questions = []; // will be loaded from questions.json
+let answers = new Array(TOTAL_QUESTIONS).fill(null); // user's selected choices A/B/C/D/E or null
+
+// helpers
+function saveLocal() {
+  const name = document.getElementById('name').value || '';
+  const roll = document.getElementById('rollno').value || '';
+  localStorage.setItem('vdo_answers_'+roll, JSON.stringify({name, roll, answers, ts:Date.now()}));
+}
+function loadLocal(){
+  const roll = document.getElementById('rollno').value || '';
+  const raw = localStorage.getItem('vdo_answers_'+roll);
+  if(!raw) return false;
+  const obj = JSON.parse(raw);
+  if(obj.answers) answers = obj.answers;
+  return true;
+}
+function renderQuestions(){
+  if(!questions || !questions.length) {
+    questionsList.innerHTML = "<div class='small'>No questions loaded. Please ensure questions.json is uploaded.</div>";
+    return;
+  }
+  const html = [];
+  for(let i=0;i<questions.length;i++){
+    const q = questions[i];
+    const idx = i+1;
+    const userSel = answers[i];
+    const optsHtml = q.options.map((opt,j)=>{
+      const letter = ['A','B','C','D','E'][j];
+      const sel = (userSel === letter) ? ' selected' : '';
+      return `<div class="opt${sel}" data-q="${i}" data-choice="${letter}"><strong>${letter}.</strong> ${opt}</div>`;
+    }).join('');
+    html.push(`<div class="question" id="q${idx}"><div><strong>${idx}.</strong> ${q.q}</div><div class="opts">${optsHtml}</div></div>`);
+  }
+  questionsList.innerHTML = html.join('');
+  // attach click handlers for option buttons
+  document.querySelectorAll('.opt').forEach(el=>{
+    el.addEventListener('click', (ev)=>{
+      const qIndex = parseInt(el.dataset.q,10);
+      const choice = el.dataset.choice;
+      answers[qIndex] = choice;
+      // re-render small change: toggle selected class on siblings
+      const parent = el.parentNode;
+      parent.querySelectorAll('.opt').forEach(o=>o.classList.remove('selected'));
+      el.classList.add('selected');
+      saveLocal();
+    });
+  });
+}
+
+// load questions.json
+async function loadQuestions(){
+  try {
+    const resp = await fetch(QUESTIONS_FILE + '?v='+Date.now());
+    if(!resp.ok) throw new Error('Cannot load questions.json');
+    questions = await resp.json();
+    // Basic check: if fewer than TOTAL_QUESTIONS, show note
+    renderQuestions();
+  } catch (err){
+    questionsList.innerHTML = "<div class='small'>Error loading questions.json — open console to see details.</div>";
+    console.error(err);
+  }
+}
+
+// scoring
+function scoreAnswers(){
+  const key = questions.map(q=>q.correct); // expects each question object to have .correct like "A"
+  let right=0, wrong=0, skipped=0;
+  for(let i=0;i<TOTAL_QUESTIONS;i++){
+    const u = answers[i];
+    const c = key[i];
+    if(!u){ skipped++; continue; }
+    if(u === c) right++; else wrong++;
+  }
+  const marks = right * MARK_PER_QUESTION - wrong * NEGATIVE;
+  return {right, wrong, skipped, marks};
+}
+
+// submission to Google Sheet
+async function submitToSheet(payload){
+  if(!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('https://script.google.com/macros/s/AKfycbw35jOVTAjQ-fbf9M26-njAvYCCpjeGhCWWD1vUCMU3Zyf8BXv4GqnE8OkNP2gXeCmmqw/exec')) {
+    console.warn('Google Script URL not set — skipping sheet submit.');
+    return;
+  }
+  try {
+    await fetch(GOOGLE_SCRIPT_URL, {
+      method:'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+  } catch(e){ console.warn('submit error', e); }
+}
+
+// events
+startBtn.addEventListener('click', ()=>{
+  // small validation: at least roll number
+  const roll = document.getElementById('rollno').value.trim();
+  if(!roll){ alert('Please enter Roll No. to continue'); return; }
+  page1.style.display='none';
+  page2.style.display='block';
+  // attempt to load saved answers for this roll
+  const had = loadLocal();
+  if(had) renderQuestions();
+});
+
+backBtn.addEventListener('click', ()=>{
+  page2.style.display='none';
+  page1.style.display='block';
+  resultCard.style.display='none';
+});
+
+// load saved explicitly
+loadSavedBtn.addEventListener('click', ()=>{
+  const ok = loadLocal();
+  if(ok){ alert('Loaded saved answers for this Roll No.'); renderQuestions(); } else alert('No saved answers found for this Roll No.');
+});
+
+// Show result
+showResultBtn.addEventListener('click', async ()=>{
+  if(!questions || questions.length < TOTAL_QUESTIONS){
+    if(!confirm('Questions not fully loaded. Continue to score what is answered?')) return;
+  }
+  const r = scoreAnswers();
+  resultCard.style.display='block';
+  resultDiv.innerHTML = `
+    <p>✅ <strong>Right</strong>: ${r.right}</p>
+    <p>❌ <strong>Wrong</strong>: ${r.wrong}</p>
+    <p>⭕ <strong>Skipped</strong>: ${r.skipped}</p>
+    <h3>🏁 Total Marks: ${r.marks.toFixed(2)} / ${(TOTAL_QUESTIONS*MARK_PER_QUESTION).toFixed(2)}</h3>
+  `;
+  // prepare submission payload
+  const payload = {
+    name: document.getElementById('name').value || '',
+    rollno: document.getElementById('rollno').value || '',
+    gender: document.getElementById('gender').value || '',
+    area: document.getElementById('area').value || '',
+    category: document.getElementById('category').value || '',
+    special: document.getElementById('special').value || '',
+    right: r.right, wrong: r.wrong, skipped: r.skipped, total: r.marks.toFixed(2),
+    answers: answers // full array saved to sheet (optionally)
+  };
+  // submit in background (no blocking)
+  submitToSheet(payload);
+  // save local copy
+  saveLocal();
+  // scroll to result
+  resultCard.scrollIntoView({behavior:'smooth'});
+});
+
+// Print
+printBtn.addEventListener('click', ()=>{
+  // prepare a print area
+  const printArea = document.createElement('div');
+  printArea.id='printArea';
+  printArea.innerHTML = `<h2>Result — ${document.getElementById('name').value || ''} — Roll: ${document.getElementById('rollno').value || ''}</h2>${resultDiv.innerHTML}`;
+  // also include per-question short table
+  const perQ = questions.map((q,i)=>{
+    const u = answers[i] || '-';
+    const c = q.correct || '-';
+    const ok = (u === c) ? '✓' : (u === '-' ? '' : '✗');
+    return `<div style="margin-bottom:6px"><strong>Q${i+1}.</strong> Your: ${u} — Correct: ${c} ${ok}</div>`;
+  }).join('');
+  printArea.innerHTML += `<hr/>${perQ}`;
+  document.body.appendChild(printArea);
+  window.print();
+  printArea.remove();
+});
+
+// initial load
+loadQuestions();
+</script>
 </body>
 </html>
-
