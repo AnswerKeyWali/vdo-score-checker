@@ -1,31 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rajasthan VDO Exam Score Checker 2025</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rajasthan VDO Score Checker 2025</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 40px; background: #f6f8fa; }
-    h1 { color: #2b6cb0; }
-    textarea { width: 100%; height: 120px; font-size: 16px; padding: 10px; }
-    button { background: #2b6cb0; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px; }
-    #result { background: white; padding: 20px; margin-top: 20px; border-radius: 10px; }
+    body { font-family: Arial; background: #f6f8fa; margin: 30px; }
+    input, select, textarea { width: 100%; padding: 8px; margin: 6px 0; }
+    button { background: #2b6cb0; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 5px; }
+    #result { background: #fff; padding: 15px; margin-top: 15px; border-radius: 10px; }
   </style>
 </head>
 <body>
+  <h1>📘 Rajasthan VDO Exam 2025 Score Checker</h1>
 
-  <h1>📘 Rajasthan VDO Exam 2025 - Score Checker</h1>
-  <p>Enter your OMR answers below (only A/B/C/D — 160 answers).</p>
+  <label>Name:</label>
+  <input id="name" placeholder="Your Name" />
 
-  <textarea id="answers" placeholder="Example: ABCDBACD... (160 letters)"></textarea>
-  <br><br>
+  <label>Roll No.:</label>
+  <input id="rollno" placeholder="Your Roll Number" />
+
+  <label>Gender:</label>
+  <select id="gender">
+    <option value="">-- Select --</option>
+    <option>Male</option>
+    <option>Female</option>
+  </select>
+
+  <label>Area:</label>
+  <select id="area">
+    <option value="">-- Select --</option>
+    <option>URBAN</option>
+    <option>RURAL</option>
+  </select>
+
+  <label>Category:</label>
+  <select id="category">
+    <option value="">-- Select --</option>
+    <option>GEN</option>
+    <option>OBC</option>
+    <option>SC</option>
+    <option>ST</option>
+  </select>
+
+  <label>Special Category:</label>
+  <select id="special">
+    <option value="">-- None --</option>
+    <option>PH</option>
+    <option>Ex-Serviceman</option>
+  </select>
+
+  <label>Paste Your Answers (A/B/C/D):</label>
+  <textarea id="answers" placeholder="Example: ABCDBACD..." rows="5"></textarea>
+
   <button onclick="checkScore()">Check My Score</button>
 
   <div id="result"></div>
 
   <script src="data.js"></script>
   <script src="script.js"></script>
-
 </body>
 </html>
+
