@@ -1,30 +1,43 @@
-// script.js
-
-const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbyGZgU_Pl4NBtWgohhN92vKVGnHd2XHc1dLME1vNvjIgP4bwlQcY105WW7fW_FLefye/exec"; // paste from Apps Script
-
+// parse a pasted answers string — keep A,B,C,D,E only
 function parseAnswers(input) {
-  input = input.toUpperCase().replace(/[^A-D]/g, "");
-  return input.split("");
+  if (!input) return [];
+  // Convert to uppercase and keep only A-E letters, commas, spaces, newlines
+  input = input.toUpperCase().replace(/[^A-E,\s]/g, "");
+  // If comma-separated or space-separated, split, otherwise treat as contiguous letters
+  if (input.includes(",") || /\s/.test(input.trim())) {
+    // split on comma or whitespace, filter empty
+    return input.split(/[, \n\r\t]+/).filter(x => x !== "");
+  } else {
+    // contiguous like "ABCDEAB..." -> split into single letters
+    return input.trim().split("").filter(ch => ch !== "");
+  }
 }
-
+// Constants (verify these are present and correct)
+const TOTAL_QUESTIONS = 160;
+const MARK_PER_QUESTION = 1.25;
+const NEGATIVE_MARK = MARK_PER_QUESTION / 3;
+// scoring that treats E as intentional skip (0 marks) and blank as negative
 function calculateScore(userAnswers) {
-  const correctAnswers = ANSWER_KEY.split("");
+  // ensure correctAnswers array length equals TOTAL_QUESTIONS
+  const correctAnswers = ANSWER_KEY.split("").map(c => c ? c.toUpperCase() : "");
   let right = 0, wrong = 0, skipped = 0, unmarked = 0;
 
   for (let i = 0; i < TOTAL_QUESTIONS; i++) {
-    const user = userAnswers[i];
-    const correct = correctAnswers[i];
+    const user = (userAnswers[i] || "").toUpperCase(); // may be undefined
+    const correct = (correctAnswers[i] || "").toUpperCase();
 
     if (user === "E") {
-      // E = intentionally skipped (no marks, no negative)
+      // E = intentionally skipped -> no penalty, no marks
       skipped++;
-    } else if (!user || user === "") {
-      // Blank (did not fill anything, not even E) = negative
+    } else if (!user) {
+      // blank (no input at all) => negative marking
       unmarked++;
-      wrong++;
-    } else if (user === correct) {
+      wrong++; // count toward penalty
+    } else if (user === correct && user !== "") {
       right++;
     } else {
+      // user provided A-D and it's not equal to correct (or correct is blank),
+      // that's a wrong answer -> negative mark
       wrong++;
     }
   }
@@ -32,47 +45,3 @@ function calculateScore(userAnswers) {
   const total = right * MARK_PER_QUESTION - wrong * NEGATIVE_MARK;
   return { right, wrong, skipped, unmarked, total };
 }
-
-async function submitData(data) {
-  try {
-    await fetch(GOOGLE_SHEET_URL, {
-      method: "POST",
-      body: JSON.stringify(data),
-      headers: { "Content-Type": "application/json" }
-    });
-  } catch (err) {
-    console.error("Submit error:", err);
-  }
-}
-
-function checkScore() {
-  const name = document.getElementById("name").value.trim();
-  const rollno = document.getElementById("rollno").value.trim();
-  const gender = document.getElementById("gender").value;
-  const area = document.getElementById("area").value;
-  const category = document.getElementById("category").value;
-  const special = document.getElementById("special").value;
-  const userInput = document.getElementById("answers").value;
-
-  const userAnswers = parseAnswers(userInput);
-  const result = calculateScore(userAnswers);
-
-  const totalMarks = result.total.toFixed(2);
-
- document.getElementById("result").innerHTML = `
-  <h3>📊 Your Result</h3>
-  <p>✅ Correct: ${result.right}</p>
-  <p>❌ Wrong (with negative): ${result.wrong}</p>
-  <p>⭕ Skipped (E marked): ${result.skipped}</p>
-  <p>⚠️ Left blank (no E marked): ${result.unmarked}</p>
-  <h4>🏁 Total Marks: ${totalMarks} / 200</h4>
-`;
-
-
-  // Send data to Google Sheet
-  submitData({
-    name, rollno, gender, area, category, special,
-    right: result.right, wrong: result.wrong, skipped: result.skipped, total: totalMarks
-  });
-}
-
