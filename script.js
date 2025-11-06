@@ -9,18 +9,28 @@ function parseAnswers(input) {
 
 function calculateScore(userAnswers) {
   const correctAnswers = ANSWER_KEY.split("");
-  let right = 0, wrong = 0, skipped = 0;
+  let right = 0, wrong = 0, skipped = 0, unmarked = 0;
 
   for (let i = 0; i < TOTAL_QUESTIONS; i++) {
     const user = userAnswers[i];
     const correct = correctAnswers[i];
-    if (!user) skipped++;
-    else if (user === correct) right++;
-    else wrong++;
+
+    if (user === "E") {
+      // E = intentionally skipped (no marks, no negative)
+      skipped++;
+    } else if (!user || user === "") {
+      // Blank (did not fill anything, not even E) = negative
+      unmarked++;
+      wrong++;
+    } else if (user === correct) {
+      right++;
+    } else {
+      wrong++;
+    }
   }
 
   const total = right * MARK_PER_QUESTION - wrong * NEGATIVE_MARK;
-  return { right, wrong, skipped, total };
+  return { right, wrong, skipped, unmarked, total };
 }
 
 async function submitData(data) {
@@ -49,14 +59,15 @@ function checkScore() {
 
   const totalMarks = result.total.toFixed(2);
 
-  // Display result
-  document.getElementById("result").innerHTML = `
-    <h3>📊 Your Result</h3>
-    <p>✅ Correct: ${result.right}</p>
-    <p>❌ Wrong: ${result.wrong}</p>
-    <p>⭕ Skipped: ${result.skipped}</p>
-    <h4>🏁 Total Marks: ${totalMarks} / 200</h4>
-  `;
+ document.getElementById("result").innerHTML = `
+  <h3>📊 Your Result</h3>
+  <p>✅ Correct: ${result.right}</p>
+  <p>❌ Wrong (with negative): ${result.wrong}</p>
+  <p>⭕ Skipped (E marked): ${result.skipped}</p>
+  <p>⚠️ Left blank (no E marked): ${result.unmarked}</p>
+  <h4>🏁 Total Marks: ${totalMarks} / 200</h4>
+`;
+
 
   // Send data to Google Sheet
   submitData({
